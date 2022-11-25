@@ -22,7 +22,7 @@ extract_fct_names <- function(path) {
 
 
 
-get_input_data_path <- function(x) {
+get_input_data_path <- function(x = "") {
   file.path(
     Sys.getenv("PRJ_SHARED_PATH"),
     Sys.getenv("INPUT_DATA_FOLDER"),
@@ -31,7 +31,7 @@ get_input_data_path <- function(x) {
     normalizePath()
 }
 
-get_output_data_path <- function(x) {
+get_output_data_path <- function(x = "") {
   file.path(
     Sys.getenv("PRJ_SHARED_PATH"),
     Sys.getenv("OUTPUT_DATA_FOLDER"),

@@ -1,3 +1,4 @@
 main:
-  script: C:/Users/corrado.lanera/Documents/ubep/laims.analysis/_targets.R
-  store: C:\Users\corrado.lanera\Documents\ubep\laims.analysis/_targets
+  script: /home/cl/GitHub/UBEP/iobed.model/_targets.R
+  store: /home/cl/Insync/corrado.lanera@ubep.unipd.it/OneDrive Biz - SharePoint/LAIMS
+    - Documenti/IOBED/model/_targets

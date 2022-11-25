@@ -1,15 +1,23 @@
-Package: laims.analysis
-Title: What the Package Does (One Line, Title Case)
+Package: iobed.model
+Title: DL models for I.O.BED project at UBEP
 Version: 0.1.1
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Corrado", "Lanera", , "corrado.lanera@ubep.unipd.it", role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0000-0002-0520-7428")),
+    person("Alessandra", "Casamento", , "alessandra.casamento@ubep.unipd.it", role = "aut"),
+    person("Silvano", "Salaris", , "silvano.salaris@ubep.unipd.it", role = "ctb",
+           comment = c(ORCID = "0000-0002-8389-7460")),
+    person("Dario", "Gregori", , "dario.gregori@ubep.unipd.it", role = c("ctb", "cph"),
+           comment = c(ORCID = "0000-0001-7906-0580"))
+  )
+Description: Provide functions, utilities and models to classify person
+    movement on a smart bed basted on weight sensors under the bed.
 License: file LICENSE
 Imports: 
     fs,
     purrr,
     readr,
+    readxl,
     stringr
 Suggests: 
     blogdown,
@@ -52,4 +60,4 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2

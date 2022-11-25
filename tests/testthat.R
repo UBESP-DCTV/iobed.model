@@ -1,4 +1,4 @@
 library(testthat)
-library(laims.analysis)
+library(iobed.model)
 
-test_check("laims.analysis")
+test_check("iobed.model")

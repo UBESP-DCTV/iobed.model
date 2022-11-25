@@ -1,35 +1,28 @@
-
-# Here below put your main project's functions ---------------------
-
-
-#' Null function
+#' get_bed_file_paths
 #'
-#' Use this as template for your first function, and delete it!
+#' Get all the paths to the xlsx files containing bed data and classes
+#' to use for classification.
 #'
-#' @note You can add all this documentation infrastructure pressing
-#'   `CTRL + SHIFT + ALT + R` from anywhere inside the function's body.
+#' @note Input data path is automatically retrieved from the
+#'   corresponding entry in the project `.Renviron` files (you can open
+#'   it by running `usethis::edit_r_environ("project")`)
 #'
-#' @param x (default, NULL)
-#'
-#' @return NULL
+#' @return (chr) vector of input xlsx file paths.
+#' @export
 #'
 #' @examples
-#' \dontrun{
-#'   null()
-#'   null(1)
-#' }
-null <- function(x = NULL) {
-  if (!is.null(x)) NULL else x
+#' get_bed_file_paths()
+get_bed_file_paths <- function() {
+  get_input_data_path() |>
+    list.files(
+      pattern = "_bed\\.xlsx",
+      full.names = TRUE
+    )
 }
 
 
-import_data <- function(.data_path) {
-  file.path(.data_path) |>
-    normalizePath() |>
-    readr::read_csv()
-}
 
 
-relevant_computation <- function(db) {
-  2 * length(db) + 1
+import_bed <- function(bed_path) {
+  readxl::read_excel(bed_path)
 }

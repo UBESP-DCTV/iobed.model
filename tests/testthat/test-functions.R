@@ -25,4 +25,3 @@ test_that("import_bed works", {
   c("sbl", "weight", "static_bed") |>
     expect_subset(names(bed_data))
 })
-

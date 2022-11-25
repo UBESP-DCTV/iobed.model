@@ -1,8 +1,10 @@
 
 # Project packages (TO BE UPDATED EVERY NEW PACKAGE USED) ----------
 
+usethis::use_tibble()
+
 {
-  prj_pkgs <- c("fs", "readr", "stringr", "purrr", "readxl")
+  prj_pkgs <- c("fs", "readr", "stringr", "purrr", "readxl", "tibble")
   gh_prj_pkgs <- c()
   meta_pkgs <- c()
   dev_pkgs <- c("qs")

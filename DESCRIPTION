@@ -14,15 +14,19 @@ Description: Provide functions, utilities and models to classify person
     movement on a smart bed basted on weight sensors under the bed.
 License: file LICENSE
 Imports: 
+    checkmate,
     fs,
+    keras,
     purrr,
     readr,
     readxl,
+    reticulate,
     stringr,
+    tensorflow,
     tibble
 Suggests: 
+    autotestthat (>= 0.1.1),
     blogdown,
-    checkmate,
     covr,
     depigner,
     devtools,
@@ -57,6 +61,8 @@ Suggests:
     xaringanExtra,
     xaringanthemer,
     yaml
+Remotes: 
+    CorradoLanera/autotestthat
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US

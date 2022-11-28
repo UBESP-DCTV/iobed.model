@@ -16,11 +16,5 @@ list.files(here("R"), pattern = "\\.R$", full.names = TRUE) |>
 # use `tar_read(target_name)` to load a target anywhere (note that
 # `target_name` is NOT quoted!)
 
-tar_read(bedFiles)
-
-
-tar_read(bedData, branches = 1) |> class()
-tar_read(bedData, branches = 1)[[1]] |> class()
-tar_read(bedData, branches = 2)
-
-tar_read(bedData) |> class()
+tar_read(trainingArray, branches = 1)[[1]] |> View()
+tar_read(trainingArray, branches = 2)[[1]]

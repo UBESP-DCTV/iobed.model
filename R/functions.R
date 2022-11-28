@@ -37,7 +37,7 @@ get_bed_file_paths <- function() {
 #'   import_bed("path/to/bed_data.xlsx")
 #' }
 import_bed <- function(bed_path) {
-  qassert(bed_path, "S1")
+  checkmate::qassert(bed_path, "S1")
   readxl::read_excel(bed_path)
 }
 
@@ -46,9 +46,9 @@ import_bed <- function(bed_path) {
 
 #' prepare_supervised_bed
 #'
-#' Data from IOBED experiments included four weighting sensors reporting
-#' the overall weight lying on the bed and the percentage of weight
-#' distribution across each of them. In particular thy can be:
+#' Data from a single IOBED experiments included four weighting sensors
+#' reporting the overall weight lying on the bed and the percentage of
+#' weight distribution across each of them. In particular thy can be:
 #'
 #' - **sbl** (Sensor Bottom Left): [0-1000]
 #' - **sul** (Sensor Upper Left): [0-1000]
@@ -100,29 +100,40 @@ import_bed <- function(bed_path) {
 #'  db <- import_bed("path/to/bed_data.xlsx")
 #'  db_train <- prepare_supervised_bed(bed)
 #' }
-prepare_supervised_bed <- function(db, include_casual = FALSE) {
-  NULL
+prepare_supervised_bed <- function(
+    db,
+    label_dict,
+    include_casual = FALSE
+) {
+  train_x_vars <- c(
+    "tilt_bed", "sbl", "sbr", "sul", "sur", "weight"
+  )
+  train_x <- dplyr::select(db, dplyr::all_of(train_x_vars)) |>
+    dplyr::mutate(
+      dplyr::across(
+        dplyr::everything(),
+        ~tidyr::replace_na(-1) |> as.integer()
+      )
+    ) |>
+    as.matrix()
+
+  train_y_vars <- c("static_bed", "dyn_bed", "static_self", "dyn_self")
+  train_y <- dplyr::select(db, dplyr::all_of(train_y_vars)) |>
+    dplyr::mutate(
+      across(
+        dplyr::everything(),
+        ~tolower(.x) |> tidyr::replace_na("(missing)")
+      )
+    ) |>
+    as.matrix()
+
+
+  list(
+    x = array(train_x, dim = c(nrow(train_x), ncol(train_x))),
+    y_true = array(
+      as.integer(label_dict[train_y]), dim = dim(train_y)
+    )
+  )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

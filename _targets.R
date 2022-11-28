@@ -6,7 +6,7 @@ list.files(here::here("R"), pattern = "\\.R$", full.names = TRUE) |>
 
 # Set target-specific options such as packages.
 tar_option_set(
-  packages = c("readr"),
+  packages = c("readr", "keras", "tensorflow", " reticulate"),
   resources = tar_resources(
     qs = tar_resources_qs(preset = "fast")
   ),
@@ -25,6 +25,37 @@ list(
     pattern = map(bedFiles),
     iteration = "list",
     format = "qs"
+  ),
+  tar_target(
+    trainingArray,
+    prepare_supervised_bed(bedData, labelDict),
+    pattern = map(bedData),
+    iteration = "list",
+    format = "qs"
+  ),
+  tar_target(
+    labelDict,
+    c(
+      `(missing)` = -1,
+      null = 0,
+      right = 1,
+      center = 2,
+      left = 3,
+      transition = 4,
+      `slide to right` = 1,
+      `turn to right` = 1,
+      static = 2,
+      `slide to left` = 3,
+      `turn to left` = 3,
+      entrance = 4,
+      # `entrance to right` = 4,
+      # `entrance left` = 5,
+      exit = 6,
+      # `exit right` = 6,
+      # `exit left` = 7,
+      `assessment` = 8,
+      casual = 9
+    )
   )
 
   # compile your report

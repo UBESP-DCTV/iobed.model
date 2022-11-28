@@ -4,26 +4,43 @@
 usethis::use_tibble()
 
 {
-  prj_pkgs <- c("fs", "readr", "stringr", "purrr", "readxl", "tibble")
+  prj_pkgs <- c(
+    "checkmate", "fs", "readr", "stringr", "purrr", "readxl", "tibble",
+    "reticulate", "keras", "tensorflow"
+  )
   gh_prj_pkgs <- c()
+
   meta_pkgs <- c()
+
   dev_pkgs <- c("qs")
+  dev_gh_pkgs <- c("CorradoLanera/autotestthat")
 
   renv::install(c(prj_pkgs, gh_prj_pkgs, meta_pkgs, dev_pkgs))
 
   purrr::walk(prj_pkgs, usethis::use_package)
   purrr::walk(gh_prj_pkgs, ~{
-    package_name <- stringr::str_extract(.x, "[\\w\\.]+$")
-    usethis::use_dev_package(package_name, remote = .x)
+    package_name <- stringr::str_extract(.x, "[\\w\\.]+$") |>
+      usethis::use_dev_package(remote = .x)
   })
 
   purrr::walk(dev_pkgs, usethis::use_package, type = "suggests")
+  purrr::walk(dev_gh_pkgs, ~{
+    stringr::str_extract(.x, "[\\w\\.]+$") |>
+      usethis::use_dev_package(remote = .x, type = "Suggests")
+  })
 
   usethis::use_tidy_description()
   devtools::document()
   renv::status()
 }
 # renv::snapshot()
+
+
+
+# Setup tf --------------------------------------------------------
+
+reticulate::py_install("pydot")
+
 
 # Functions definitions -------------------------------------------
 
@@ -32,4 +49,4 @@ usethis::use_tibble()
 ## by running the following lines of code as needed.
 
 # usethis::use_test("<my_fun>")
-# usethis::use_r(<"my_fun">)
+usethis::use_r("model")

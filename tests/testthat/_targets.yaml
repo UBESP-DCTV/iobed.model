@@ -1,4 +1,4 @@
 main:
-  script: /home/cl/GitHub/UBEP/iobed.model/_targets.R
-  store: /home/cl/Insync/corrado.lanera@ubep.unipd.it/OneDrive Biz - SharePoint/LAIMS
-    - Documenti/IOBED/model/_targets
+  script: C:/Users/corra/Documents/ubesp/iobed.model/_targets.R
+  store: C:/Users/corra/Unit of Biostatistics Epidemiology and Public Health/LAIMS
+    - IOBED/model/_targets

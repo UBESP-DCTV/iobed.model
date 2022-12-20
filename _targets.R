@@ -6,7 +6,7 @@ list.files(here::here("R"), pattern = "\\.R$", full.names = TRUE) |>
 
 # Set target-specific options such as packages.
 tar_option_set(
-  packages = c("readr", "keras", "tensorflow", " reticulate"),
+  packages = c("readr", "keras", "tensorflow", "reticulate"),
   resources = tar_resources(
     qs = tar_resources_qs(preset = "fast")
   ),
@@ -27,42 +27,84 @@ list(
     format = "qs"
   ),
   tar_target(
-    trainingArray,
+    trainingArrays,
     prepare_supervised_bed(bedData, labelDict),
     pattern = map(bedData),
     iteration = "list",
     format = "qs"
   ),
+
   tar_target(
     labelDict,
     c(
-      `(missing)` = -1,
-      null = 0,
-      right = 1,
-      center = 2,
-      left = 3,
-      transition = 4,
-      `slide to right` = 1,
-      `turn to right` = 1,
-      static = 2,
-      `slide to left` = 3,
-      `turn to left` = 3,
-      entrance = 4,
+      `(missing)` = 0,
+      null = 1,
+      right = 2,
+      center = 3,
+      centre = 3,
+      supine = 3,
+      left = 4,
+      transition = 5,
+      `slide to the right` = 2,
+      `turn to the right` = 2,
+      static = 3,
+      `slide to the left` = 4,
+      `turn to the left` = 4,
+      entrance = 5,
       # `entrance to right` = 4,
       # `entrance left` = 5,
       exit = 6,
       # `exit right` = 6,
       # `exit left` = 7,
-      `assessment` = 8,
-      casual = 9
+      `assessment` = 7,
+      casual = 8
     )
+  ),
+
+  tar_target(
+    par,
+    list(
+      x = batch_generator(trainingArrays),
+      val = batch_generator(
+        trainingArrays,
+        validation = TRUE
+      ),
+      epochs = 10,
+      # generator = batch_generator(trainingArrays),
+      n_batches = dim(trainingArrays[[1]][[1]])[[2]],
+      n_batches = trainingArrays |>
+        purrr::map_int(~dim(.x[[1]])[[2]]) |>
+        min()
+    ),
+    cue = targets::tar_cue("always")
+  ),
+
+  tar_target(
+    kerasTarget,
+    setup_and_fit_model(par)[["model"]],
+    format = tar_format(
+      read = function(path) {
+        keras::load_model_hdf5(path)
+      },
+      write = function(object, path) {
+        keras::save_model_hdf5(object = object, filepath = path)
+      },
+      marshal = function(object) {
+        keras::serialize_model(object)
+      },
+      unmarshal = function(object) {
+        keras::unserialize_model(object)
+      }
+    ),
+    cue = tar_cue("always")
   )
 
   # compile your report
   # tar_render(report, here::here("reports/report.Rmd")),
 
 
-  # # Decide what to share with other, and do it in a standard RDS format
+  # # Decide what to share with other,
+  # # and do it in a standard RDS format
   # tar_target(
   #   objectToShare,
   #   list(

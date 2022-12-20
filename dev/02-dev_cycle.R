@@ -6,7 +6,7 @@ usethis::use_tibble()
 {
   prj_pkgs <- c(
     "checkmate", "fs", "readr", "stringr", "purrr", "readxl", "tibble",
-    "reticulate", "keras", "tensorflow"
+    "reticulate", "keras", "tensorflow", "abind"
   )
   gh_prj_pkgs <- c()
 
@@ -32,15 +32,16 @@ usethis::use_tibble()
   usethis::use_tidy_description()
   devtools::document()
   renv::status()
+  renv::snapshot()
 }
-# renv::snapshot()
+
 
 
 
 # Setup tf --------------------------------------------------------
 
-reticulate::py_install("pydot")
-
+reticulate::py_install("pydot", pip = TRUE)
+reticulate::conda_install(packages = "graphviz")
 
 # Functions definitions -------------------------------------------
 

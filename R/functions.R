@@ -15,7 +15,7 @@
 get_bed_file_paths <- function() {
   get_input_data_path() |>
     list.files(
-      pattern = "_bed\\.xlsx",
+      pattern = "((^bed_.+)|(_bed))\\.xlsx$",
       full.names = TRUE
     )
 }
@@ -103,6 +103,7 @@ import_bed <- function(bed_path) {
 prepare_supervised_bed <- function(
     db,
     label_dict,
+
     include_casual = FALSE
 ) {
   train_x_vars <- c(
@@ -120,20 +121,112 @@ prepare_supervised_bed <- function(
   train_y_vars <- c("static_bed", "dyn_bed", "static_self", "dyn_self")
   train_y <- dplyr::select(db, dplyr::all_of(train_y_vars)) |>
     dplyr::mutate(
-      across(
+      dplyr::across(
         dplyr::everything(),
         ~tolower(.x) |> tidyr::replace_na("(missing)")
       )
     ) |>
-    as.matrix()
+    purrr::map(~{
+      label_dict[.x] |>
+        as.integer() |>
+        array(dim = c(1, length(.x)))
+    }) |>
+    purrr::set_names(
+      c(
+        "static_bed_recurrent_output",
+        "dyn_bed_recurrent_output",
+        "static_self_recurrent_output",
+        "dyn_self_recurrent_output"
+      )
+    )
 
 
   list(
-    x = array(train_x, dim = c(nrow(train_x), ncol(train_x))),
-    y_true = array(
-      as.integer(label_dict[train_y]), dim = dim(train_y)
-    )
+    input_bed = train_x |>
+        array(dim = c(nrow(train_x), ncol(train_x))) |>
+        abind::abind(along = 0.5),
+    targets = train_y
   )
 }
 
 
+batch_generator <- function(training_list, validation = FALSE) {
+  i <- 1
+
+  slice_time <- function(x, i, seq = FALSE) {
+    if ((length(dim(x)) == 3)) {
+      x[, seq_len(i), , drop = FALSE]
+    } else {
+      if (seq) {
+        x[, seq_len(i), drop = FALSE]
+      } else {
+        x[, i, drop = FALSE]
+      }
+    }
+  }
+
+  max_len <- training_list |>
+    purrr::map_int(~dim(.x[[1]])[[2]]) |>
+    min()
+
+  training_list <- training_list |>
+    purrr::map(~{
+      list(
+        slice_time(.x[[1]], max_len),
+        purrr::map(.x[[2]], slice_time, max_len, seq = TRUE) |>
+          purrr::set_names(
+            c(
+              "static_bed_recurrent_output",
+              "dyn_bed_recurrent_output",
+              "static_self_recurrent_output",
+              "dyn_self_recurrent_output"
+            )
+          )
+      )
+    })
+
+
+  training_list <- if (validation) {
+    training_list[[1]]
+  } else {
+    aux <- training_list[-1]
+    aux_x <- purrr::map(aux, 1) |> abind::abind(along = 1)
+    aux_y1 <- purrr::map(aux, c(2, 1)) |>
+      abind::abind(along = 1)
+    aux_y2 <- purrr::map(aux, c(2, 2)) |>
+      abind::abind(along = 1)
+    aux_y3 <- purrr::map(aux, c(2, 3)) |>
+      abind::abind(along = 1)
+    aux_y4 <- purrr::map(aux, c(2, 4)) |>
+      abind::abind(along = 1)
+
+    list(
+      aux_x,
+      list(aux_y1, aux_y2, aux_y3, aux_y4)
+    )
+  }
+
+  function() {
+    if (i > dim(training_list[[1]])[[2]]) i <<- 1
+
+    res_x <- list(input_bed = slice_time(training_list[[1]], i))
+
+    res_y <- training_list[[2]] |>
+          purrr::map(slice_time, i) |>
+          purrr::set_names(
+            c(
+              "static_bed_recurrent_output",
+              "dyn_bed_recurrent_output",
+              "static_self_recurrent_output",
+              "dyn_self_recurrent_output"
+            )
+          )
+
+    i <<- i + 1
+
+    list(
+      x = res_x,
+      y_true = res_y
+    )
+  }
+}

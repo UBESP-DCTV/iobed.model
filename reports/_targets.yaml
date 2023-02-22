@@ -1,4 +1,4 @@
 main:
-  script: C:/Users/corra/Documents/ubesp/iobed.model/_targets.R
-  store: C:/Users/corra/Unit of Biostatistics Epidemiology and Public Health/LAIMS
-    - IOBED/model/_targets
+  script: C:/Users/corrado.lanera/Documents/GitHub/ubep/iobed.model/_targets.R
+  store: C:\\Users\\corrado.lanera\\Unit of Biostatistics Epidemiology and Public
+    Health\\LAIMS - model/_targets

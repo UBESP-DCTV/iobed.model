@@ -142,6 +142,16 @@ setup_and_fit_model <- function(par) {
       metrics = "sparse_categorical_accuracy"
     )
 
+  callbacks_list <- list(
+    keras::callback_early_stopping(
+      monitor = "val_loss", patience = 10),
+    keras::callback_model_checkpoint(
+      filepath = "iobed-model.keras",
+      monitor = "val_loss", save_best_only = TRUE),
+    keras::callback_tensorboard(log_dir = "logs/")
+  )
+
+
   history <- model %>%
     keras::fit(
       x = par$x,
@@ -149,7 +159,8 @@ setup_and_fit_model <- function(par) {
       validation_data = par$val,
       validation_step = ceiling(par$n_batches / 4),
       batch_size = 20, # 21 people, 1 for validation
-      epochs = par$epochs
+      epochs = par$epochs,
+      callbacks = callbacks_list,
     )
 
   print(plot(history))

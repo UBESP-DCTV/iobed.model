@@ -41,6 +41,7 @@ usethis::use_tibble()
 # Setup tf --------------------------------------------------------
 
 reticulate::py_install("pydot", pip = TRUE)
+reticulate::py_install("h5py", pip = TRUE)
 reticulate::conda_install(packages = "graphviz")
 
 # Functions definitions -------------------------------------------

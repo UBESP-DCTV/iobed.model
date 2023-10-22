@@ -27,14 +27,6 @@ list(
     format = "qs"
   ),
   tar_target(
-    trainingArrays,
-    prepare_supervised_bed(bedData, labelDict),
-    pattern = map(bedData),
-    iteration = "list",
-    format = "qs"
-  ),
-
-  tar_target(
     labelDict,
     c(
       `(missing)` = 0,
@@ -60,21 +52,21 @@ list(
       casual = 8
     )
   ),
-
+  tar_target(
+    trainingArrays,
+    prepare_supervised_bed(bedData, labelDict),
+    pattern = map(bedData),
+    iteration = "list",
+    format = "qs"
+  ),
   tar_target(
     par,
     list(
       x = batch_generator(trainingArrays),
-      val = batch_generator(
-        trainingArrays,
-        validation = TRUE
-      ),
-      epochs = 10,
+      val = batch_generator(trainingArrays, validation = TRUE),
+      epochs = 2,
       # generator = batch_generator(trainingArrays),
-      n_batches = dim(trainingArrays[[1]][[1]])[[2]],
-      n_batches = trainingArrays |>
-        purrr::map_int(~dim(.x[[1]])[[2]]) |>
-        min()
+      n_batches = dim(trainingArrays[[1]][[1]])[[2]] # n timepoints
     ),
     cue = targets::tar_cue("always")
   ),

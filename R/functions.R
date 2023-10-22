@@ -113,7 +113,9 @@ prepare_supervised_bed <- function(
     dplyr::mutate(
       dplyr::across(
         dplyr::everything(),
-        ~tidyr::replace_na(-1) |> as.integer()
+        ~ dplyr::na_if(.x, 65534) |>
+          tidyr::replace_na(-1) |>
+          as.integer()
       )
     ) |>
     as.matrix()
@@ -151,8 +153,6 @@ prepare_supervised_bed <- function(
 
 
 batch_generator <- function(training_list, validation = FALSE) {
-  i <- 1
-
   slice_time <- function(x, i, seq = FALSE) {
     if ((length(dim(x)) == 3)) {
       x[, seq_len(i), , drop = FALSE]
@@ -206,8 +206,10 @@ batch_generator <- function(training_list, validation = FALSE) {
     )
   }
 
+  i <- dim(training_list[[1]])[[2]]
+
   function() {
-    if (i > dim(training_list[[1]])[[2]]) i <<- 1
+    if (i == 0) i <<- dim(training_list[[1]])[[2]]
 
     res_x <- list(input_bed = slice_time(training_list[[1]], i))
 
@@ -222,7 +224,7 @@ batch_generator <- function(training_list, validation = FALSE) {
             )
           )
 
-    i <<- i + 1
+    i <<- i - 1
 
     list(
       x = res_x,

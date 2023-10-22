@@ -13,6 +13,10 @@ setup_and_fit_model <- function(par) {
   )
 
   hidden_recurrent <-  input %>%
+    keras::layer_rescaling(
+      name = "rescale_input",
+      scale = 1e-3
+    ) %>%
     keras::layer_gru(
       name = "oo",
       units = 64,
@@ -143,10 +147,9 @@ setup_and_fit_model <- function(par) {
       x = par$x,
       steps_per_epoch = par$n_batches,
       validation_data = par$val,
-      validation_step = par$n_batches_val,
-      batch_size = 20,
-      epochs = 5, # par$epochs,
-      view_metrics = TRUE
+      validation_step = ceiling(par$n_batches / 4),
+      batch_size = 20, # 21 people, 1 for validation
+      epochs = par$epochs
     )
 
   print(plot(history))

@@ -18,7 +18,7 @@ tar_option_set(
 # End this file with a list of target objects.
 list(
 
-  tar_files_input(bedFiles, get_bed_file_paths()),
+  tar_files_input(bedFiles, get_bed_file_paths("labelled")),
   tar_target(
     bedData,
     import_bed(bedFiles),
@@ -29,7 +29,6 @@ list(
   tar_target(
     labelDict,
     c(
-      `(missing)` = 0,
       null = 1,
       right = 2,
       center = 3,
@@ -63,17 +62,27 @@ list(
     par,
     list(
       x = batch_generator(trainingArrays),
+      n_x = batch_generator(trainingArrays)()[[1]][[1]] |>
+        (\(x) dim(x)[[1L]])(),
       val = batch_generator(trainingArrays, validation = TRUE),
+      n_val = trainingArrays |>
+        (\(x) batch_generator(x, validation = TRUE)()[[1]][[1]])() |>
+        (\(x) dim(x)[[1L]])(),
       epochs = 2,
-      # generator = batch_generator(trainingArrays),
-      n_batches = dim(trainingArrays[[1]][[1]])[[2]] # n timepoints
+      batch_size = trainingArrays |>
+        (\(x) batch_generator(x, validation = TRUE)()[[1]][[1]])() |>
+        (\(x) dim(x)[[1L]])() |>
+        log2() |> # from here: min power of 2 greater then val size
+        ceiling() |>
+        (\(x) 2^x)(),
+      n_timepoints = dim(trainingArrays[[1]][[1]])[[2]] # n timepoints
     ),
     cue = targets::tar_cue("always")
   ),
 
   tar_target(
     kerasTarget,
-    setup_and_fit_model(par)[["model"]],
+    setup_and_fit_model(par),
     format = tar_format(
       read = function(path) {
         keras::load_model_hdf5(path)

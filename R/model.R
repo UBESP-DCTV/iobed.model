@@ -135,16 +135,13 @@ setup_and_fit_model <- function(par) {
   model %>%
     keras::compile(
       optimizer = k$optimizers$Adam(amsgrad = TRUE),
-      loss = list(
-        "sparse_categorical_crossentropy", "sparse_categorical_crossentropy",
-        "sparse_categorical_crossentropy", "sparse_categorical_crossentropy"
-      ),
+      loss = "sparse_categorical_crossentropy",
       metrics = "sparse_categorical_accuracy"
     )
 
   callbacks_list <- list(
     keras::callback_early_stopping(
-      monitor = "val_loss", patience = 10),
+      monitor = "loss", patience = 10),
     keras::callback_model_checkpoint(
       filepath = "iobed-model.keras",
       monitor = "val_loss", save_best_only = TRUE),
@@ -155,19 +152,22 @@ setup_and_fit_model <- function(par) {
   history <- model %>%
     keras::fit(
       x = par$x,
-      steps_per_epoch = par$n_batches,
+      steps_per_epoch = ceiling(
+        par$n_x / par$batch_size
+      ) * par$n_timepoints,
       validation_data = par$val,
-      validation_step = ceiling(par$n_batches / 4),
-      batch_size = 20, # 21 people, 1 for validation
+      validation_step = ceiling(
+         par$n_val / par$batch_size
+        ) * par$n_timepoints,
+      batch_size = par$batch_size,
       epochs = par$epochs,
       callbacks = callbacks_list,
+      verbose = 1
     )
 
+  readr::write_rds(history, "last_history.rds")
   print(plot(history))
 
-  list(
-    history = history,
-    model = model
-  )
+  model
 }
 
